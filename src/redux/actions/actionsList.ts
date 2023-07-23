@@ -1,0 +1,4 @@
+export const GET_SEARCH_IMAGE = 'GET_SEARCH_IMAGE';
+export const SET_SEARCH_IMAGE = 'SET_SEARCH_IMAGE';
+
+export const SET_IS_LOADING = 'SET_IS_LOADING';
