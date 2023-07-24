@@ -10,7 +10,11 @@ import {
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {useDispatch, useSelector} from 'react-redux';
 
-import {getSearchImage, setSearchImage} from '@src/redux/actions/searchImage';
+import {
+  getListImage,
+  getSearchImage,
+  setSearchImage,
+} from '@src/redux/actions/searchImage';
 import {RootState} from '@src/redux/store';
 
 import useThemedStyles from '@src/hooks/useThemedStyles';
@@ -36,19 +40,43 @@ const SearchImage: React.FC<PageProps> = ({navigation}) => {
 
   const styles = useThemedStyles(SearchImageStyles);
 
-  const {resultSearchImage}: SearchImageState = useSelector(
+  const {resultSearchImage, resultListImage}: SearchImageState = useSelector(
     (state: RootState) => state.searchImageReducer,
   );
+
+  const [completeListImageList, setCompleteListImageList] = useState<
+    SearchImageItem[]
+  >([]);
 
   const [completeSearchImageList, setCompleteSearchImageList] = useState<
     SearchImageItem[]
   >([]);
+
+  const [pageForFetchingListImage, setPageForFetchingListImage] =
+    useState<number>(1);
 
   const [queryForFetchingSearchImage, setQueryForFetchingSearchImage] =
     useState<string>('');
 
   const [pageForFetchingSearchImage, setPageForFetchingSearchImage] =
     useState<number>(1);
+
+  useEffect(() => {
+    if (!queryForFetchingSearchImage) {
+      dispatch(getListImage({page: pageForFetchingListImage}));
+    }
+  }, [dispatch, pageForFetchingListImage, queryForFetchingSearchImage]);
+
+  useEffect(() => {
+    if (resultListImage?.data) {
+      setCompleteListImageList(prevList =>
+        [...prevList, ...resultListImage?.data].filter(
+          (thing, index, self) =>
+            self.findIndex(t => t.id === thing.id) === index,
+        ),
+      );
+    }
+  }, [resultListImage?.data]);
 
   useEffect(() => {
     if (resultSearchImage?.data.results) {
@@ -61,7 +89,7 @@ const SearchImage: React.FC<PageProps> = ({navigation}) => {
     }
   }, [resultSearchImage?.data.results]);
 
-  const handleOnEndReached = () => {
+  const handleOnEndReachedForSearchImage = () => {
     if (
       resultSearchImage?.data.total_pages &&
       pageForFetchingSearchImage < resultSearchImage?.data.total_pages
@@ -72,25 +100,31 @@ const SearchImage: React.FC<PageProps> = ({navigation}) => {
     }
   };
 
+  const handleOnEndReachedForListImage = () => {
+    const page = pageForFetchingListImage + 1;
+    setPageForFetchingListImage(page);
+  };
+
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const debounceCallback = useCallback(
     debounce((value: string) => {
       setCompleteSearchImageList([]);
+      dispatch(setSearchImage(undefined));
       setPageForFetchingSearchImage(1);
-      dispatch(getSearchImage({page: 1, query: value}));
+      setCompleteListImageList([]);
+
+      if (value.length === 0) {
+        setPageForFetchingListImage(1);
+      } else {
+        dispatch(getSearchImage({page: 1, query: value}));
+      }
     }, 1000),
     [],
   );
 
   const handleInputChange = (value: string) => {
     setQueryForFetchingSearchImage(value);
-
-    if (value.length === 0) {
-      setCompleteSearchImageList([]);
-      dispatch(setSearchImage(undefined));
-    } else {
-      debounceCallback(value);
-    }
+    debounceCallback(value);
   };
 
   return (
@@ -98,24 +132,26 @@ const SearchImage: React.FC<PageProps> = ({navigation}) => {
       <View style={styles.textInputContainer}>
         <Text>Search Image : </Text>
         <TextInput
+          testID="search-keyword-input"
           inputMode="text"
           style={styles.textInput}
           onChangeText={handleInputChange}
         />
       </View>
-      {completeSearchImageList.length > 0 && (
+      {completeSearchImageList.length > 0 ? (
         <FlatList
           testID="search-image-list"
           numColumns={2}
           showsVerticalScrollIndicator={false}
           data={completeSearchImageList}
           keyExtractor={item => `${item.id}`}
-          onEndReached={handleOnEndReached}
+          onEndReached={handleOnEndReachedForSearchImage}
           onEndReachedThreshold={0}
-          renderItem={({item}) => {
+          renderItem={({item, index}) => {
             return (
               <View style={styles.imageCardWrapper}>
                 <TouchableWithoutFeedback
+                  testID={`search-image-card-${index}`}
                   onPress={() =>
                     navigation.navigate(routesEnum.SELECTED_IMAGE_PAGE, {
                       selectedImage: item,
@@ -141,7 +177,46 @@ const SearchImage: React.FC<PageProps> = ({navigation}) => {
             );
           }}
         />
-      )}
+      ) : completeListImageList.length > 0 ? (
+        <FlatList
+          testID="list-image-list"
+          numColumns={2}
+          showsVerticalScrollIndicator={false}
+          data={completeListImageList}
+          keyExtractor={item => `${item.id}`}
+          onEndReached={handleOnEndReachedForListImage}
+          onEndReachedThreshold={0}
+          renderItem={({item, index}) => {
+            return (
+              <View style={styles.imageCardWrapper}>
+                <TouchableWithoutFeedback
+                  testID={`list-image-card-${index}`}
+                  onPress={() =>
+                    navigation.navigate(routesEnum.SELECTED_IMAGE_PAGE, {
+                      selectedImage: item,
+                    })
+                  }>
+                  <View style={styles.imageCard}>
+                    <Image
+                      style={styles.imageContainer}
+                      source={{uri: item.urls.small}}
+                    />
+                    <Text>Title : </Text>
+                    <Text
+                      numberOfLines={2}
+                      ellipsizeMode="head"
+                      style={styles.contentText}>
+                      {item.description}
+                    </Text>
+                    <Text>Author:</Text>
+                    <Text style={styles.contentText}>{item.user.name}</Text>
+                  </View>
+                </TouchableWithoutFeedback>
+              </View>
+            );
+          }}
+        />
+      ) : null}
     </View>
   );
 };

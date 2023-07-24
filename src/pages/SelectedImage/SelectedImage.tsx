@@ -5,7 +5,6 @@ import {
   View,
   TouchableOpacity,
   TouchableWithoutFeedback,
-  PermissionsAndroid,
 } from 'react-native';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {useDispatch} from 'react-redux';
@@ -17,7 +16,6 @@ import {getDownloadImage} from '@src/redux/actions/downloadImage';
 import {RootStackParamType, routesEnum} from '@src/types/rootStackParam';
 
 import imagePath from '@src/utils/imagePath';
-import {isAndroid} from '@src/utils/reactNative';
 
 import SelectedImageStyles from './SelectedImage.styles';
 
@@ -46,49 +44,34 @@ const SelectedImage: React.FC<PageProps> = ({navigation, route: {params}}) => {
     dispatch(getDownloadImage({url: selectedImage.links.download_location}));
   };
 
-  const shareToIGAndroid = async () => {
-    try {
-      const granted = await PermissionsAndroid.request(
-        PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE,
-        {
-          title: 'Storage Permission',
-          message:
-            'Picture has to be downloaded to shared to Instagram.\nDownload picture need access to your storage',
-          buttonNeutral: 'Ask Me Later',
-          buttonNegative: 'Cancel',
-          buttonPositive: 'OK',
-        },
-      );
-      if (granted === PermissionsAndroid.RESULTS.GRANTED) {
-        // shareToIG();
-      }
-    } catch (error) {
-      console.log(error);
-    }
-  };
-
   return (
-    <TouchableWithoutFeedback onPress={() => navigation.goBack()}>
+    <TouchableWithoutFeedback
+      testID="overlay-layer"
+      onPress={() => navigation.goBack()}>
       <View style={styles.rootContainer}>
         <View style={styles.imageCard}>
           <Image
+            testID="selected-image"
             style={[
               styles.imageContainer,
               isUseObjectFitContain
                 ? styles.objectFitContain
                 : styles.objectFitCover,
             ]}
-            source={{uri: selectedImage?.urls.small}}
+            source={{uri: selectedImage?.urls.regular}}
           />
           <Text>Title : </Text>
           <Text
+            testID="selected-image-description"
             numberOfLines={2}
             ellipsizeMode="head"
             style={styles.contentText}>
             {selectedImage?.description}
           </Text>
           <Text>Author:</Text>
-          <Text style={styles.contentText}>{selectedImage?.user.name}</Text>
+          <Text testID="selected-image-author" style={styles.contentText}>
+            {selectedImage?.user.name}
+          </Text>
           <View style={styles.actionButtonSection}>
             <TouchableOpacity
               style={styles.actionButton}
@@ -99,13 +82,7 @@ const SelectedImage: React.FC<PageProps> = ({navigation, route: {params}}) => {
               />
             </TouchableOpacity>
             <View style={styles.socialMediaButtonSection}>
-              <TouchableOpacity
-                style={styles.socialMediaButton}
-                onPress={() => {
-                  if (isAndroid) {
-                    shareToIGAndroid();
-                  }
-                }}>
+              <TouchableOpacity style={styles.socialMediaButton}>
                 <Image
                   style={styles.actionButtonImage}
                   source={imagePath.INSTAGRAM_LOGO}

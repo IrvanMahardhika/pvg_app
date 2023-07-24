@@ -1,3 +1,7 @@
+export interface ListImageRequest {
+  page: number;
+}
+
 export interface SearchImageRequest {
   query?: string;
   page: number;
@@ -31,6 +35,12 @@ export interface ResultSearchImage {
   };
 }
 
+export interface ResultListImage {
+  status: number;
+  data: SearchImageItem[];
+}
+
 export interface SearchImageState {
+  resultListImage?: ResultListImage;
   resultSearchImage?: ResultSearchImage;
 }

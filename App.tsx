@@ -1,5 +1,5 @@
 import React from 'react';
-import {StatusBar, SafeAreaView} from 'react-native';
+import {StatusBar, View} from 'react-native';
 import {Provider} from 'react-redux';
 import {store} from '@src/redux/store';
 
@@ -17,7 +17,7 @@ function App(): JSX.Element {
   return (
     <Provider store={store}>
       <ThemeProvider>
-        <SafeAreaView style={[theme.layout.appContainer]}>
+        <View style={[theme.layout.appContainer]}>
           <StatusBar
             translucent
             backgroundColor={theme.layout.statusBar.backgroundColor}
@@ -25,7 +25,7 @@ function App(): JSX.Element {
           />
           <Router />
           <LoadingIndicator />
-        </SafeAreaView>
+        </View>
       </ThemeProvider>
     </Provider>
   );
