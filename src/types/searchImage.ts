@@ -5,6 +5,8 @@ export interface SearchImageRequest {
 
 export interface SearchImageItem {
   id: string;
+  width: number;
+  height: number;
   description: string;
   alt_description: string;
   urls: {
@@ -12,6 +14,7 @@ export interface SearchImageItem {
     regular: string;
   };
   links: {
+    download: string;
     download_location: string;
   };
   user: {

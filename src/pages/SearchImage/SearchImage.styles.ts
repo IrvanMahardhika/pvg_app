@@ -9,6 +9,7 @@ export default (theme: Theme) =>
       ...theme.layout.rootContainer,
     },
     textInputContainer: {
+      paddingVertical: moderateScale(10),
       paddingHorizontal: moderateScale(5),
       flexDirection: 'row',
       alignItems: 'center',
@@ -38,8 +39,8 @@ export default (theme: Theme) =>
     imageContainer: {
       width: '100%',
       height: moderateScale(150),
-      objectFit: 'cover',
       borderRadius: moderateScale(4),
+      objectFit: 'cover',
     },
     contentText: {
       marginLeft: moderateScale(10),

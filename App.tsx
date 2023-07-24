@@ -7,9 +7,9 @@ import LoadingIndicator from '@src/components/loadingIndicator/loadingIndicator'
 
 import useTheme from '@src/hooks/useTheme';
 
-import ThemeProvider from '@src/styles/themeProvider';
-
 import Router from '@src/routes/indexRoutes';
+
+import ThemeProvider from '@src/styles/themeProvider';
 
 function App(): JSX.Element {
   const theme = useTheme();

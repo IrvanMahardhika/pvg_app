@@ -1,5 +1,12 @@
 import React, {useEffect, useState, useCallback} from 'react';
-import {FlatList, Image, Text, View, TextInput} from 'react-native';
+import {
+  FlatList,
+  Image,
+  Text,
+  View,
+  TextInput,
+  TouchableWithoutFeedback,
+} from 'react-native';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {useDispatch, useSelector} from 'react-redux';
 
@@ -24,7 +31,7 @@ interface PageProps {
   navigation: PageNavigationProp;
 }
 
-const SearchImage: React.FC<PageProps> = () => {
+const SearchImage: React.FC<PageProps> = ({navigation}) => {
   const dispatch = useDispatch();
 
   const styles = useThemedStyles(SearchImageStyles);
@@ -108,21 +115,28 @@ const SearchImage: React.FC<PageProps> = () => {
           renderItem={({item}) => {
             return (
               <View style={styles.imageCardWrapper}>
-                <View style={styles.imageCard}>
-                  <Image
-                    style={styles.imageContainer}
-                    source={{uri: item.urls.small}}
-                  />
-                  <Text>Title : </Text>
-                  <Text
-                    numberOfLines={2}
-                    ellipsizeMode="head"
-                    style={styles.contentText}>
-                    {item.description}
-                  </Text>
-                  <Text>Author:</Text>
-                  <Text style={styles.contentText}>{item.user.name}</Text>
-                </View>
+                <TouchableWithoutFeedback
+                  onPress={() =>
+                    navigation.navigate(routesEnum.SELECTED_IMAGE_PAGE, {
+                      selectedImage: item,
+                    })
+                  }>
+                  <View style={styles.imageCard}>
+                    <Image
+                      style={styles.imageContainer}
+                      source={{uri: item.urls.small}}
+                    />
+                    <Text>Title : </Text>
+                    <Text
+                      numberOfLines={2}
+                      ellipsizeMode="head"
+                      style={styles.contentText}>
+                      {item.description}
+                    </Text>
+                    <Text>Author:</Text>
+                    <Text style={styles.contentText}>{item.user.name}</Text>
+                  </View>
+                </TouchableWithoutFeedback>
               </View>
             );
           }}

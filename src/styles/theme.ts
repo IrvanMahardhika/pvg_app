@@ -16,6 +16,9 @@ const defaultTheme: Theme = {
     accent: {
       border: 'rgb(227, 227, 227)',
     },
+    transparent: {
+      blueTransparent: 'rgba(9, 30, 66, 0.54)',
+    },
   },
   layout: {
     rootContainer: {
